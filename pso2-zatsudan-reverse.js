@@ -10,7 +10,7 @@
 
 ;(async function () {
   const f = unsafeWindow.tmFunctions
-  const list = document.querySelector('ul.list1')
-  const ls = Array.from(list.querySelectorAll('li.pcmt'))
+  const list = document.querySelectorAll('ul.list1')[0]
+  const ls = [...list.querySelectorAll(':scope > li.pcmt')]
   list.prepend(...ls.reverse())
 })()
