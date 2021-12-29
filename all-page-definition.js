@@ -47,11 +47,15 @@
       this._dialog.id = this.id
       this._inner = this.createInner()
       this._dialog.appendChild(this._inner)
-      this._dialog.addEventListener('cancel', (e) => {
-        e.preventDefault()
+      const cancelFunc = (e) => {
+        e?.preventDefault?.()
         if (this.cancel) {
           this.close()
         }
+      }
+      this._dialog.addEventListener('cancel', cancelFunc)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') cancelFunc()
       })
       this._append()
       this.close()
@@ -93,15 +97,15 @@
     }
     async _append() {
       await f.wait(() => document.body)
-      document.body.appendChild(this._dialog)
       const style = document.createElement('style')
       style.textContent = `
       #${this.id} {
-        padding: 1rem;
+        all: revert;
+        padding: 1em;
         top: 50%;
         left: 50%;
         margin: 0px;
-        font-family: 'Cica' 'ＭＳ ゴシック';
+        font-family: 'Cica', 'ＭＳ ゴシック';
         font-size: 22px;
         transform: translate(-50%, -50%);
         transition-property: clip-path;
@@ -114,6 +118,7 @@
         clip-path: inset(100%);
       }
       #${this.id}::backdrop {
+        all: revert;
         transition-property: background-color;
         transition-duration: ${this._duration}s;
       }
@@ -123,8 +128,12 @@
       #${this.id}.hide::backdrop {
         background-color: rgba(0, 0, 0, 0);
       }
+      #${this.id} > .inner {
+        all: revert;
+      }
       #${this.id} > .inner > .loading,
       #${this.id} > .inner > .progress {
+        all: revert;
         --size: 20px;
         --steps: 10;
         position: relative;
@@ -138,6 +147,7 @@
         --value: 0;
       }
       #${this.id} > .inner > .loading > .inner {
+        all: revert;
         position: absolute;
         background-color: black;
         height: 100%;
@@ -156,14 +166,16 @@
         }
       }
       #${this.id} > .inner > .progress > .inner {
+        all: revert;
         background-color: black;
         height: 100%;
-        width: calc(100% * min(100, var(--value)));
+        width: calc(100% * min(1, var(--value)));
         transition-property: width;
         transition-duration: 0.1s;
       }
       `
-      document.body.appendChild(style)
+      this._dialog.appendChild(style)
+      document.body.appendChild(this._dialog)
       this.ready = true
     }
     async _waitReady() {
