@@ -7,6 +7,7 @@
 // @match        https://utaten.com/lyric/*
 // @match        https://www.utamap.com/showkasi.php?surl=*
 // @match        https://j-lyric.net/artist/*
+// @match        https://www.google.com/search?q=*
 // @grant        unsafeWindow
 // @require      file://C:/user-scripts/get-lyric.js
 // ==/UserScript==
@@ -36,15 +37,22 @@
   async function jlyric() {
     return document.getElementById('Lyric').innerText
   }
+  async function google() {
+    return [...document.querySelectorAll('div')].filter(
+      (e) => e.children.length === 0 && e.innerText === '歌詞は印刷できません'
+    )?.[0]?.nextSibling?.firstChild?.innerText
+  }
   const functions = {
     'www.uta-net.com': utaNet,
     'utaten.com': utaten,
     'www.utamap.com': utamap,
     'j-lyric.net': jlyric,
+    'www.google.com': google,
   }
   const lyric = (await functions[location.host]())
     .replaceAll(/\n+/g, '\n')
     .replaceAll(/^\s+/g, '')
     .replaceAll(/　/g, ' ')
+  if (!lyric) return
   await f.clipText(lyric)
 })()
