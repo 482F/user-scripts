@@ -38,9 +38,12 @@
     return document.getElementById('Lyric').innerText
   }
   async function google() {
-    return [...document.querySelectorAll('div')].filter(
+    const children = [...document.querySelectorAll('div')].filter(
       (e) => e.children.length === 0 && e.innerText === '歌詞は印刷できません'
-    )?.[0]?.nextSibling?.firstChild?.innerText
+    )?.[0]?.nextSibling?.firstChild?.children
+    if (!children?.length) return
+    const child = children?.[1] ?? children?.[0]
+    return child?.innerText
   }
   const functions = {
     'www.uta-net.com': utaNet,
