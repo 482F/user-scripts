@@ -18,7 +18,7 @@
       setTimeout(() => (timeouted = true), timeout)
     }
     let result
-    while (!(result = await func())) {
+    while (!(result = await func()) && !timeouted) {
       await f.sleep(waitTime)
       console.log(result)
     }
