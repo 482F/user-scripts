@@ -38,11 +38,18 @@
     return document.getElementById('Lyric').innerText
   }
   async function google() {
-    const children = [...document.querySelectorAll('div')].filter(
+    const children = [...document.querySelectorAll('div')].find(
       (e) => e.children.length === 0 && e.innerText === '歌詞は印刷できません'
-    )?.[0]?.nextSibling?.firstChild?.children
+    )?.nextSibling?.firstChild?.children
     if (!children?.length) return
-    const child = children?.[1] ?? children?.[0]
+    const child = (() => {
+      if (children[1].innerText.match('提供元')) {
+        return children[0]
+      } else {
+        return children[1]
+      }
+    })()
+    console.log(child)
     return child?.innerText
   }
   const functions = {
