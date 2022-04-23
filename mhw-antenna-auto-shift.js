@@ -3,7 +3,7 @@
 // @namespace    482F
 // @version      0.1
 // @author       482F
-// @match        http://mhwmatome.antenam.jp/items/view/*
+// @match        https://mhwmatome.antenam.jp/items/view/*
 // @grant        unsafeWindow
 // @require      file://C:/user-scripts/mhw-antenna-auto-shift.js
 // ==/UserScript==
