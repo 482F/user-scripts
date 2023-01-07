@@ -82,6 +82,113 @@
     style.sheet.insertRule('.SeekBarHoverItem { display: none; }')
   }
 
+  function adjustWidth() {
+    document.body.style.minWidth = '0px'
+    document.body.style.overflowX = 'hidden'
+    const historyContent = document.querySelector('HistoryPage-content')
+    if (historyContent) {
+      historyContent.style.width = 'auto'
+    }
+    const classes = [
+      'HeaderContainer_Re',
+      'UserPageFooterContainer',
+      'PageTopButtonContainer',
+      'UserPage-main',
+      'UserDetailsHeader',
+    ]
+    classes.forEach((cls) => {
+      const el = document.querySelector(`.${cls}`)
+      if (el) {
+        el.style.width = '100%'
+      }
+    })
+  }
+
+  async function hidePremiumHeader() {
+    let premiumEl = await unsafeWindow.tmFunctions.wait(
+      () =>
+        [...document.querySelectorAll('ul[class^=common-header] > li')].filter(
+          (el) => el.textContent === 'プレミアム会員登録'
+        )[0],
+      1000
+    )
+    console.log({ premiumEl })
+    const parentNum = 4
+    for (let i = 0; i < parentNum; i++) {
+      premiumEl = premiumEl.parentElement
+    }
+    premiumEl.style.display = 'none'
+  }
+
+  async function userVideosContinuous() {
+    const fc = unsafeWindow.fetch
+    unsafeWindow.fetch = async (...args) => {
+      const r = await fc(...args)
+      if (
+        !args[0]?.includes?.(
+          'https://nvapi.nicovideo.jp/v1/playlist/user-uploaded/'
+        ) ||
+        !location.href.match(/watch\/sm\d+/)
+      ) {
+        return r
+      }
+      console.log('%cA', 'background-color: lightblue;')
+      const json = await r.json()
+
+      const userId = args[0].match(/user-uploaded\/(\d+)/)[1]
+      const getVideos = (page) =>
+        fc(
+          `https://nvapi.nicovideo.jp/v3/users/${userId}/videos?` +
+            Object.entries({
+              sortKey: 'registeredAt',
+              sortOrder: 'asc',
+              sensitiveContents: 'mask',
+              pageSize: '100',
+              page,
+            })
+              .map((keyValue) => keyValue.join('='))
+              .join('&'),
+          {
+            headers: {
+              'x-frontend-id': '6',
+            },
+          }
+        )
+          .then((r) => r.json())
+          .then((json) =>
+            json.data.items.map((item) => ({
+              content: item.essential,
+              watchId: item.essential.id,
+            }))
+          )
+      const currentVideoId = location.href.match(/sm\d+/)[0]
+
+      const totalCount = json.data.totalCount
+      const videos = []
+      let newVideos = []
+      let includedIndex = Infinity
+      let i = 1
+
+      while (videos.length < totalCount && i < includedIndex + 2) {
+        console.log('getVideos', i)
+        newVideos = await getVideos(i++)
+        videos.push(...newVideos)
+        if (newVideos.map((video) => video.watchId).includes(currentVideoId)) {
+          includedIndex = i
+        }
+        console.log({totalCount, len: videos.length})
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      }
+      json.data.items = videos
+      console.log({ json })
+      r.json = () => json
+      return r
+    }
+  }
+
   commentInterceptor()
   hideSeekbarHoverItem()
+  adjustWidth()
+  hidePremiumHeader()
+  userVideosContinuous()
 })()
