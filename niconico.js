@@ -15,14 +15,11 @@
     await new Promise((resolve) => setTimeout(resolve, 10))
   }
   function commentInterceptor() {
-    const f = unsafeWindow.tmFunctions
     const fc = unsafeWindow.fetch
-    const blacklist = GM_getValue('blacklist')
+    const blacklist = GM_getValue('blacklist') ?? { word: [], userId: [] }
     unsafeWindow.fetch = async (...args) => {
       const r = await fc(...args)
-      console.log(args[0], r)
       if (args[0] !== 'https://nvcomment.nicovideo.jp/v1/threads') return r
-      // console.log(args, r)
       const json = await r.json()
       const mainIndex = json.data.threads.findIndex(
         (thread) => thread.fork === 'main'
