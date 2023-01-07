@@ -33,6 +33,14 @@
             blacklist.userId.some((userId) => c.userId === userId)
           )
       )
+      json.data.threads[mainIndex].commentCount =
+        json.data.threads[mainIndex].comments.length
+
+      const easyIndex = json.data.threads.findIndex(
+        (thread) => thread.fork === 'easy'
+      )
+      json.data.threads[easyIndex].comments = []
+      json.data.threads[easyIndex].commetCount = 0
       r.json = () => json
       return r
     }
