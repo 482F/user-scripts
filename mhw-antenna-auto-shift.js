@@ -11,6 +11,7 @@
 ;(async function () {
   const f = unsafeWindow.tmFunctions
   location.href =
-    'http://mhwmatome.antenam.jp/items/click/' +
+    location.origin +
+    '/items/click/' +
     location.href.match(/[^\/]+$/)[0]
 })()
